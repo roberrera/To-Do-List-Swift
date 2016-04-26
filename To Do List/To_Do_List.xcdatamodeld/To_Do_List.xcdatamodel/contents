@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="6254" systemVersion="14B25" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
+    <entity name="Tasks" representedClassName="Tasks" syncable="YES">
+        <attribute name="dueDate" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="locationName" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="priorityLevel" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="taskName" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="Tasks" positionX="-54" positionY="-9" width="128" height="105"/>
+    </elements>
+</model>
