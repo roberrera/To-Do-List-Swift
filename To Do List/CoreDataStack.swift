@@ -12,23 +12,19 @@ import CoreData
 
 class CoreDataStack {
     
-    let managedObjectModel:NSManagedObjectModel
-    let storeCoordinator:NSPersistentStoreCoordinator
-    let context:NSManagedObjectContext
-    let store:NSPersistentStore?
+    let managedObjectModel: NSManagedObjectModel
+    let storeCoordinator: NSPersistentStoreCoordinator
+    let context: NSManagedObjectContext
+    let store: NSPersistentStore?
     
-    init()
-    {
+    init() {
         let bundle = NSBundle.mainBundle()
         let modelURL = bundle.URLForResource("To_Do_List", withExtension: "momd")
         
         managedObjectModel = NSManagedObjectModel(contentsOfURL: modelURL!)!
-
-        
         storeCoordinator = NSPersistentStoreCoordinator(managedObjectModel: managedObjectModel)
         
         context = NSManagedObjectContext()
-        
         context.persistentStoreCoordinator = storeCoordinator
         
         let documentURL = applicationDocumentsDirectory()
@@ -37,7 +33,7 @@ class CoreDataStack {
         let options = [NSMigratePersistentStoresAutomaticallyOption: true]
         
         var error: NSError? = nil
-        
+    
         do {
             store = try storeCoordinator.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: storeURL, options: options)
         } catch let error1 as NSError {
@@ -45,21 +41,15 @@ class CoreDataStack {
             store = nil
         }
         
-        
         if store == nil{
             print("Error adding persistent store: \(error)")
             abort()
         }
-        
-        
     }
     
-    
-    func saveContext()
-    {
+    func saveContext() {
         var error:NSError? = nil
-        if context.hasChanges
-        {
+        if context.hasChanges {
             do {
                 try context.save()
             } catch let error1 as NSError {
@@ -69,17 +59,11 @@ class CoreDataStack {
         }
     }
     
-    
     func applicationDocumentsDirectory() -> NSURL  {
-
-        
         let fileManager = NSFileManager.defaultManager()
-        
         let urls = fileManager.URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask) as [NSURL]
-        
         return urls[0]
     }
-
 }
 
 

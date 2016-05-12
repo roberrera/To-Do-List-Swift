@@ -12,12 +12,6 @@ import CoreLocation
 
 class SecondViewController: UIViewController, UITextFieldDelegate, UIAlertViewDelegate, CLLocationManagerDelegate, UIPickerViewDelegate {
 
-//    @IBAction func cancelButton(sender: AnyObject)
-//    {
-//        // Dismiss view and go back.
-//        dismissViewControllerAnimated(true, completion: nil)
-//    }
-
     var task:AnyObject!
     var indexPath:NSIndexPath!
     var tasks = [NSManagedObject]()
@@ -36,17 +30,17 @@ class SecondViewController: UIViewController, UITextFieldDelegate, UIAlertViewDe
 
     func locationManager(manager: CLLocationManager, didUpdateLocations locations:
         [CLLocation]) {
-            CLGeocoder().reverseGeocodeLocation(manager.location, completionHandler: {(placemarks, error) -> Void in
+            CLGeocoder().reverseGeocodeLocation(manager.location!, completionHandler: {(placemarks, error) -> Void in
                 
                 if (error != nil)
                 {
-                    print("“Reverse geocoder failed with error ” + \(error.localizedDescription)")
+                    print("“Reverse geocoder failed with error ” + \(error!.localizedDescription)")
                     return
                 }
                 
-                if placemarks.count > 0
+                if placemarks!.count > 0
                 {
-                    let pm = placemarks[0] as CLPlacemark
+                    let pm = placemarks![0] as CLPlacemark
                     self.displayLocationInfo(pm)
                     print("displayLocationInfo called.")
                
@@ -57,8 +51,8 @@ class SecondViewController: UIViewController, UITextFieldDelegate, UIAlertViewDe
     }
     
     func displayLocationInfo(placemark: CLPlacemark!) {
-        if (placemark != nil)
-        {
+        if (placemark != nil) {
+            
             //stop updating location to save battery life
             locationManager.stopUpdatingLocation()
             UIApplication.sharedApplication().networkActivityIndicatorVisible = false
@@ -66,39 +60,26 @@ class SecondViewController: UIViewController, UITextFieldDelegate, UIAlertViewDe
             
             var userLocation:String = ""
             
-            if (placemark.thoroughfare != nil)
-            {
-                userLocation = userLocation + placemark.thoroughfare + ","
+            if (placemark.thoroughfare != nil) {
+                userLocation = userLocation + placemark.thoroughfare! + ","
             }
-            if (placemark.subThoroughfare != nil)
-            {
-                userLocation = userLocation + placemark.subThoroughfare + ","
+            if (placemark.subThoroughfare != nil) {
+                userLocation = userLocation + placemark.subThoroughfare! + ","
             }
-            if (placemark.locality != nil)
-            {
-                userLocation = userLocation + placemark.locality + ","
+            if (placemark.locality != nil) {
+                userLocation = userLocation + placemark.locality! + ","
             }
-            if (placemark.administrativeArea != nil)
-            {
-                userLocation = userLocation + placemark.administrativeArea + ","
+            if (placemark.administrativeArea != nil) {
+                userLocation = userLocation + placemark.administrativeArea! + ","
             }
-            if (placemark.postalCode != nil)
-            {
-                userLocation = userLocation + placemark.postalCode
+            if (placemark.postalCode != nil) {
+                userLocation = userLocation + placemark.postalCode!
             }
-
-//            if (placemark.country != nil)
-//            {
-//                userLocation = userLocation + placemark.country + "\n"
-//            }
-            print("\(placemark.locality)" + ", etc.")
             currentAddress?.text = userLocation
-
         }
     }
    
-    @IBAction func currentLocationButton(sender: AnyObject)
-    {
+    @IBAction func currentLocationButton(sender: AnyObject) {
         // Core Location data.
         
         locationManager.delegate = self
@@ -115,9 +96,6 @@ class SecondViewController: UIViewController, UITextFieldDelegate, UIAlertViewDe
         
         UIApplication.sharedApplication().networkActivityIndicatorVisible = true
         print("Location is loading.")
-        
-//        currentAddress.text = self.userLocation
-
 }
 
     // Setting up date picker and connected label.
@@ -125,8 +103,7 @@ class SecondViewController: UIViewController, UITextFieldDelegate, UIAlertViewDe
     @IBOutlet weak var datePicker: UIDatePicker!
     
     // Save to core data.
-    @IBAction func saveItemButton(sender: AnyObject)
-    {
+    @IBAction func saveItemButton(sender: AnyObject) {
         // CORE DATA
         
         // Add an item to the task list and make the keyboard disappear once you press "Save".
@@ -145,23 +122,21 @@ class SecondViewController: UIViewController, UITextFieldDelegate, UIAlertViewDe
             existingItem.setValue(dueDateText?.text, forKey: "dueDate")
             existingItem.setValue(priorityLevelText?.text, forKey: "priorityLevel")
         } else {
+        
+            // Create instance of and initialize data model.
+            let task = NSManagedObject(entity: entity!, insertIntoManagedObjectContext:managedContext)
 
-        // Create instance of and initialize data model.
-        let task = NSManagedObject(entity: entity!, insertIntoManagedObjectContext:managedContext)
-
-        // Map the properties.
-        task.setValue(taskTitleText?.text, forKey: "taskName")
-        task.setValue(currentAddress?.text, forKey: "locationName")
-        task.setValue(dueDateText?.text, forKey: "dueDate")
-        task.setValue(priorityLevelText?.text, forKey: "priorityLevel")
+            // Map the properties.
+            task.setValue(taskTitleText?.text, forKey: "taskName")
+            task.setValue(currentAddress?.text, forKey: "locationName")
+            task.setValue(dueDateText?.text, forKey: "dueDate")
+            task.setValue(priorityLevelText?.text, forKey: "priorityLevel")
         }
         
-        
-        var error:NSError?
-        
-        if !managedContext.save(&error)
-        {
-            print("Could not save \(error), \(error?.userInfo)")
+        do {
+            try managedContext.save()
+        } catch let error as NSError {
+            print("Could not save \(error), \(error.userInfo)")
         }
         
         // Save the context.
@@ -169,27 +144,20 @@ class SecondViewController: UIViewController, UITextFieldDelegate, UIAlertViewDe
         print("'appDelegate.coreDataStack.saveContext()' set.")
         
         // Add the new item to the task list.
-//        tasks.append(task)
             print("Task saved.")
         
         // Make keyboard disappear when 'add item' button is pressed, and go back to the task list.
         self.view.endEditing(true)
         dismissViewControllerAnimated(true, completion: nil)
-//            println(tasks)
 
     }
 
     // Update the due date text field when the date picker is changed.
     func datePickerDateChanged(datePicker: UIDatePicker){
-//        println("Selected date = \(datePicker.date)")
         let dateFormatter = NSDateFormatter()
-//            println("dateformatter....")
         dateFormatter.dateFormat = "MM-dd-yyyy hh:mm"
         let theDate = dateFormatter.stringFromDate(datePicker.date)
-//                println("stringFromDate.....")
         dueDateText.text = theDate
-                print("Due date selected.")
-                print("Due date = \(datePicker.date)")
     }
     
    
@@ -203,9 +171,8 @@ class SecondViewController: UIViewController, UITextFieldDelegate, UIAlertViewDe
         if dueDateText?.text == nil {
             dueDateText?.text = "<Due date>"
         }
-        print("default text set.")
         
-        datePicker.addTarget(self, action: "datePickerDateChanged:", forControlEvents: .ValueChanged)
+        datePicker.addTarget(self, action: #selector(SecondViewController.datePickerDateChanged(_:)), forControlEvents: .ValueChanged)
         
         // If you tap on an existing task item, the second view controller will allow you to update the item.
         if (existingItem != nil) {
@@ -222,16 +189,14 @@ class SecondViewController: UIViewController, UITextFieldDelegate, UIAlertViewDe
         super.didReceiveMemoryWarning()
     }
 
-    func textFieldShouldReturn(textField: UITextField!) -> Bool // called when 'return' key pressed. return NO to ignore.
-    {
+    // called when 'return' key pressed. return NO to ignore.
+    func textFieldShouldReturn(textField: UITextField) -> Bool {
         // To make keyboard disappear when 'return' is pressed.
         textField.resignFirstResponder()
         return true
-        
     }
     
-    override func touchesBegan(touches: NSSet, withEvent event: UIEvent)
-    {
+    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
         // Make keyboard disappear if a non-keyboard part of the screen is tapped.
         self.view.endEditing(true)
     }

@@ -21,40 +21,34 @@ class FirstViewController: UIViewController, UITableViewDelegate, UITableViewDat
     
     @IBOutlet var tasksTable:UITableView!
     
-    override func viewDidLoad()
-    {
+    override func viewDidLoad() {
         super.viewDidLoad()
         tasksTable.dataSource = self
         tasksTable.delegate = self
     }
     
-override func viewWillAppear(animated: Bool)
-    {
+    override func viewWillAppear(animated: Bool) {
         // To recall the saved tasks.
         
         let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
-        let managedContext = appDelegate.managedObjectContext!
-      
-        var error: NSError?
-    
+        let managedContext = appDelegate.managedObjectContext
+        
         let fetchRequest = NSFetchRequest(entityName: "Tasks")
-        let fetchResults = managedContext.executeFetchRequest(fetchRequest, error: &error) as [NSManagedObject]?
         
-        if let results = fetchResults {
+        do {
+            let fetchResults = try managedContext.executeFetchRequest(fetchRequest) as! [NSManagedObject]
+            let results = fetchResults
             tasks = results
-        } else {
-            print("Could not fetch \(error), \(error?.userInfo)")
+        } catch {
+            let updateError = error as NSError
+            print("\(updateError), \(updateError.userInfo)")
         }
-        
+ 
         tasksTable.reloadData()
-            print("Task list loaded successfully.")
-
+        print("Task list loaded successfully.")
     }
 
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int
-    {
-//        var indexPathForSelectedRow:NSIndexPath?
-//        var estimatedRowHeight:Int
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return tasks.count
     }
     
@@ -66,18 +60,15 @@ override func viewWillAppear(animated: Bool)
         cell.textLabel!.text = task.valueForKey("taskName") as! String?
         cell.detailTextLabel?.text = task.valueForKey("priorityLevel") as! String?
         return cell
-        
     }
     
-    func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath)
-    {
+    func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
 
-            switch editingStyle
-            {
+            switch editingStyle {
             case .Delete:
                 // remove the deleted item from the model
                 let appDel:AppDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
-                let context:NSManagedObjectContext = appDel.managedObjectContext!
+                let context:NSManagedObjectContext = appDel.managedObjectContext
                 context.deleteObject(tasks[indexPath.row] as NSManagedObject)
                 tasks.removeAtIndex(indexPath.row)
                 do {
@@ -94,8 +85,8 @@ override func viewWillAppear(animated: Bool)
             tasksTable.reloadData()
         }
     
-    func textFieldShouldReturn(textField: UITextField!) -> Bool // called when 'return' key pressed.
-    {
+    // called when 'return' key pressed.
+    func textFieldShouldReturn(textField: UITextField!) -> Bool {
         // To make keyboard disappear when 'return' is pressed.
         textField.resignFirstResponder()
         return true
@@ -107,13 +98,12 @@ override func viewWillAppear(animated: Bool)
         self.view.endEditing(true)
     }
     
-    override func didReceiveMemoryWarning()
-    {
+    override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
     }
 
 
-    //    // This is the setup for segues.
+    // This is the setup for segues.
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         // Pass the selected object to the second view controller.
         if segue.identifier == "editTask" {
@@ -126,13 +116,10 @@ override func viewWillAppear(animated: Bool)
             svc.dueDate = task.valueForKey ("dueDate") as! String?
             svc.priorityLevel = task.valueForKey ("priorityLevel") as! String?
             svc.existingItem = task
-            
         }
     }
     
-    @IBAction func goBack(sender: UIStoryboardSegue) {
-        
-    }
+    @IBAction func goBack(sender: UIStoryboardSegue) {}
     
 }
 
